@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MVNU Campus Map Prototype</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v3.17.0-beta.1/mapbox-gl.css"
+    rel="stylesheet"
+  />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.17.0-beta.1/mapbox-gl.js"></script>
+  <style>
+    body { margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    .mapboxgl-popup-content {
+      font-size: 14px;
+      max-width: 220px;
+    }
+    .popup-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .popup-sub {
+      font-size: 12px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+  // 1. Access token
+  mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN';
+
+  // 2. Initialize map centered on MVNU
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/standard', // Mapbox Standard style
+    center: [-82.4867, 40.3975],              // [lng, lat] for MVNU
+    zoom: 15,
+    projection: 'globe'
+  });
+
+  map.addControl(new mapboxgl.NavigationControl());
+
+  map.on('style.load', () => {
+    map.setFog({}); // default atmosphere [[Mapbox GL JS](https://docs.mapbox.com/mapbox-gl-js/guides/)]
+  });
+
+  // 3. Sample campus buildings as GeoJSON
+  const buildingsGeoJSON = {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "library",
+          "name": "Thorne Library",
+          "type": "Library",
+          "access": "Accessible entrance on south side"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-82.4860, 40.3979]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "science-hall",
+          "name": "Science Hall",
+          "type": "Academic",
+          "access": "Elevator near main lobby"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-82.4872, 40.3973]
+        }
+      },
+      {
+        "type": "Feature",
+        "properties": {
+          "id": "admin",
+          "name": "Administration Building",
+          "type": "Offices",
+          "access": "Ramp at east entrance"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [-82.4855, 40.3971]
+        }
+      }
+    ]
+  };
+  map.on('load', () => {
+    // 4. Add GeoJSON source
+    map.addSource('mvnu-buildings', {
+      type: 'geojson',
+      data: buildingsGeoJSON
+    });
+    // 5. Add a circle layer for building points (simple prototype styling)
+    map.addLayer({
+      id: 'mvnu-buildings-circles',
+      type: 'circle',
+      source: 'mvnu-buildings',
+      paint: {
+        'circle-radius': 8,
+        'circle-color': '#001f3f',   // MVNU navy
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffcc00' // gold accent
+      }
+    });
+
+    // 6. Click interaction to show popup [[Markers & popups](https://docs.mapbox.com/help/getting-started/configure-interactions/#create-markers-and-popups)]
+    map.on('click', 'mvnu-buildings-circles', (e) => {
+      const feature = e.features[0];
+      const coords = feature.geometry.coordinates.slice();
+      const props = feature.properties;
+
+      const html = `
+        <div>
+          <div class="popup-title">${props.name}</div>
+          <div class="popup-sub">${props.type}</div>
+          <div style="margin-top:6px;">Accessibility: ${props.access}</div>
+        </div>
+      `;
+
+      new mapboxgl.Popup()
+        .setLngLat(coords)
+        .setHTML(html)
+        .addTo(map);
+
+      // Optional: fly to building for emphasis [[Fly to](https://docs.mapbox.com/mapbox-gl-js/example/flyto/)]
+      map.flyTo({ center: coords, zoom: 17, essential: true });
+    });
+
+    // Change cursor on hover
+    map.on('mouseenter', 'mvnu-buildings-circles', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'mvnu-buildings-circles', () => {
+      map.getCanvas().style.cursor = '';
+    });
+  });
+</script>
+</body>
+</html>
