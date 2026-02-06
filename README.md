@@ -23,7 +23,7 @@ An interactive web application for navigating Mount Vernon Nazarene University's
 
 ### Installation
 
-1. **Clone the repository**
+1. **Cloning the repository**
    ```bash
    git clone https://github.com/BlairK22/MVNU-Campus-Map.git
    cd MVNU-Campus-Map
