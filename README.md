@@ -151,13 +151,10 @@ mvnu-campus-map/
 
 This is a capstone project for MVNU's Computer Applications Practicum course. Feedback and suggestions are welcome!
 
-## License
-
-MIT License - See [LICENSE](LICENSE) for details.
 
 ## Author
 
 **Blair Karamaga**
 - GitHub: [@BlairK22](https://github.com/BlairK22)
-- Mount Vernon Nazarene University, Class of 2026
+- Mount Vernon Nazarene University
 
